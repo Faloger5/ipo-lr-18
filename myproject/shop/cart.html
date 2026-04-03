@@ -1,0 +1,62 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Моя корзина{% endblock %}
+
+{% block content %}
+    <h1>Корзина пользователя {{ user.username }}</h1>
+    
+    {% if cart_items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Стоимость</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.product.name }}</strong><br>
+                            <small>{{ item.product.category.name }}</small>
+                        </td>
+                        <td>{{ item.product.price }} руб.</td>
+                        <td>
+                            <!-- Форма для обновления количества -->
+                            <form method="post" action="{% url 'cart_update' item.id %}" style="display: flex; gap: 5px;">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" style="width: 60px;">
+                                <button type="submit" class="btn">Обновить</button>
+                            </form>
+                        </td>
+                        <td>{{ item.item_price }} руб.</td>
+                        <td>
+                            <!-- Форма для удаления товара -->
+                            <form method="post" action="{% url 'cart_remove' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: bold; background: #f0f0f0;">
+                    <td colspan="3" style="text-align: right;">Итого:</td>
+                    <td colspan="2">{{ total_price }} руб.</td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div style="margin-top: 20px;">
+            <a href="{% url 'catalog' %}" class="btn">Продолжить покупки</a>
+            <button onclick="alert('Оформление заказа в разработке')" class="btn" style="background: #007bff;">Оформить заказ</button>
+        </div>
+    {% else %}
+        <p>Ваша корзина пуста.</p>
+        <p><a href="{% url 'catalog' %}" class="btn">Перейти в каталог</a></p>
+    {% endif %}
+{% endblock %}

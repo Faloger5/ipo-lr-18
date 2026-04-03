@@ -1,0 +1,63 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Каталог товаров{% endblock %}
+
+{% block content %}
+    <h1>Каталог товаров</h1>
+    
+    <!-- Форма фильтрации и поиска -->
+    <div class="filter-form">
+        <form method="get" action="{% url 'catalog' %}">
+            <input type="text" name="search" placeholder="Поиск по названию..." value="{{ search_query }}">
+            
+            <select name="category">
+                <option value="">Все категории</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <select name="manufacturer">
+                <option value="">Все производители</option>
+                {% for manufacturer in manufacturers %}
+                    <option value="{{ manufacturer.id }}" {% if selected_manufacturer == manufacturer.id|stringformat:"s" %}selected{% endif %}>
+                        {{ manufacturer.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit">Применить фильтры</button>
+            <a href="{% url 'catalog' %}">Сбросить</a>
+        </form>
+    </div>
+    
+    <!-- Количество найденных товаров -->
+    <p>Найдено товаров: {{ products|length }}</p>
+    
+    <!-- Сетка товаров -->
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                <h3>{{ product.name }}</h3>
+                <p class="price">{{ product.price }} руб.</p>
+                <p>Категория: {{ product.category.name }}</p>
+                <p>Производитель: {{ product.manufacturer.name }}</p>
+                <p>Остаток: {{ product.stock }} шт.</p>
+                
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'product_detail' product.id %}" class="btn">Подробнее</a>
+                    
+                    {% if product.stock > 0 %}
+                        <a href="{% url 'cart_add' product.id %}" class="btn">Добавить в корзину</a>
+                    {% else %}
+                        <span style="color: red;">Нет в наличии</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>Товары не найдены. Попробуйте изменить фильтры.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

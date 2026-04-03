@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магазин сертификатов{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        .cart-link {
+            font-size: 18px;
+            text-decoration: none;
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .cart-link:hover {
+            background: #0056b3;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #333;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        button, .btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, .btn:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        .filter-form {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .filter-form input, .filter-form select {
+            padding: 5px;
+            margin-right: 10px;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+        }
+        .product-card h3 {
+            margin: 0 0 10px 0;
+        }
+        .price {
+            font-size: 20px;
+            color: #e44d26;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav">
+                <a href="{% url 'catalog' %}">Каталог</a>
+                <a href="{% url 'cart' %}">Корзина</a>
+            </div>
+            <div>
+                {% if user.is_authenticated %}
+                    <span>Привет, {{ user.username }}!</span>
+                    <a href="/admin/logout/">Выйти</a>
+                {% else %}
+                    <a href="/admin/login/">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% block content %}{% endblock %}
+        
+        <div class="footer">
+            <p>Магазин подарочных сертификатов &copy; 2026</p>
+        </div>
+    </div>
+</body>
+</html>

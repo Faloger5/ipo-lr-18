@@ -1,0 +1,49 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+    <a href="{% url 'catalog' %}">← Назад в каталог</a>
+    
+    <div style="display: flex; gap: 30px; margin-top: 20px;">
+        <!-- Фото товара (если есть) -->
+        <div style="flex: 1;">
+            {% if product.photo %}
+                <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="max-width: 100%; border-radius: 10px;">
+            {% else %}
+                <div style="width: 100%; height: 200px; background: #ddd; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                    Нет фото
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Информация о товаре -->
+        <div style="flex: 1;">
+            <h1>{{ product.name }}</h1>
+            
+            <p class="price" style="font-size: 28px;">{{ product.price }} руб.</p>
+            
+            <p><strong>Категория:</strong> {{ product.category.name }}</p>
+            <p><strong>Производитель:</strong> {{ product.manufacturer.name }}</p>
+            <p><strong>Страна производитель:</strong> {{ product.manufacturer.country }}</p>
+            <p><strong>Остаток на складе:</strong> {{ product.stock }} шт.</p>
+            
+            <h3>Описание:</h3>
+            <p>{{ product.description }}</p>
+            
+            {% if product.stock > 0 %}
+                <a href="{% url 'cart_add' product.id %}" class="btn" style="font-size: 18px; padding: 10px 20px;">Добавить в корзину</a>
+            {% else %}
+                <p style="color: red; font-size: 18px;">Нет в наличии</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <h3>Характеристики:</h3>
+        <ul>
+            <li>Артикул: {{ product.id }}</li>
+            <li>Производитель: {{ product.manufacturer.name }} ({{ product.manufacturer.country }})</li>
+        </ul>
+    </div>
+{% endblock %}
