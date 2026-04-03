@@ -109,3 +109,12 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Куда перенаправлять после успешного входа
+LOGIN_REDIRECT_URL = 'catalog'  # название твоего URL-маршрута
+
+# Куда перенаправлять после выхода
+LOGOUT_REDIRECT_URL = 'catalog'
+
+# URL страницы входа (для @login_required)
+LOGIN_URL = '/accounts/login/'
