@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Магазин{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo a {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b35;
+            text-decoration: none;
+        }
+        .nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #333;
+        }
+        .nav a:hover {
+            color: #ff6b35;
+        }
+        .messages {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .main {
+            min-height: calc(100vh - 150px);
+            padding: 30px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #ff6b35;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #e55a2b;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="{% url 'catalog' %}">Мой магазин</a>
+                </div>
+                <div class="nav">
+                    <a href="{% url 'catalog' %}">Каталог</a>
+                    <a href="{% url 'cart' %}">Корзина</a>
+                    {% if user.is_authenticated %}
+                        <span>Привет, {{ user.username }}</span>
+                        <a href="{% url 'logout' %}">Выйти</a>
+                    {% else %}
+                        <a href="{% url 'login' %}">Войти</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="main">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>&copy; 2024 Мой магазин. Все права защищены.</p>
+    </div>
+</body>
+</html>

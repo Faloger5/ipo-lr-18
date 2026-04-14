@@ -1,0 +1,40 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<h1>Вход</h1>
+
+{% if form.errors %}
+    <div class="error">Неверное имя пользователя или пароль</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>Имя пользователя:</label>
+        {{ form.username }}
+    </div>
+    <div class="form-group">
+        <label>Пароль:</label>
+        {{ form.password }}
+    </div>
+    <button type="submit" class="btn btn-primary">Войти</button>
+</form>
+
+<p><a href="{% url 'catalog' %}">На главную</a></p>
+
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group input {
+        padding: 8px;
+        width: 250px;
+    }
+    .error {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}

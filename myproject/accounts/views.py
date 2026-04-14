@@ -7,7 +7,7 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # автоматический вход после регистрации
+            login(request, user)
             return redirect('catalog')
     else:
         form = UserCreationForm()

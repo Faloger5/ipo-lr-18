@@ -1,0 +1,74 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="product-image">
+        {% if product.photo %}
+            <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+        {% else %}
+            <div class="no-image">Нет фото</div>
+        {% endif %}
+    </div>
+    
+    <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        <p class="price">{{ product.price }} руб.</p>
+        
+        <div class="product-meta">
+            <p><strong>Категория:</strong> {{ product.category.name }}</p>
+            <p><strong>Производитель:</strong> {{ product.manufacturer.name }}</p>
+            <p><strong>Страна:</strong> {{ product.manufacturer.country }}</p>
+        </div>
+        
+        {% if product.stock > 0 %}
+            <p class="stock">В наличии: {{ product.stock }} шт.</p>
+            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Добавить в корзину</a>
+        {% else %}
+            <p class="stock out">Нет в наличии</p>
+        {% endif %}
+        
+        <div class="description">
+            <h3>Описание:</h3>
+            <p>{{ product.description }}</p>
+        </div>
+        
+        <a href="{% url 'catalog' %}" class="btn btn-secondary">← Назад в каталог</a>
+    </div>
+</div>
+
+<style>
+    .product-detail {
+        display: flex;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    .product-image {
+        flex: 1;
+        min-width: 300px;
+    }
+    .product-image img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .product-info {
+        flex: 1;
+    }
+    .price {
+        font-size: 28px;
+        font-weight: bold;
+        color: #ff6b35;
+    }
+    .stock {
+        color: green;
+        font-size: 16px;
+    }
+    .stock.out {
+        color: red;
+    }
+    .description {
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}

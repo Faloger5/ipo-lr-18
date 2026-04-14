@@ -60,11 +60,13 @@ class Product(models.Model):
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
 
+
 class Cart(models.Model):
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE,
-        verbose_name="Пользователь"
+        verbose_name="Пользователь",
+        related_name='cart'
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     
@@ -72,8 +74,7 @@ class Cart(models.Model):
         return f"Корзина пользователя {self.user.username}"
     
     def total_price(self):
-        total = sum(item.item_price() for item in self.cart_items.all())
-        return total
+        return sum(item.item_price() for item in self.items.all())
     
     class Meta:
         verbose_name = "Корзина"
@@ -84,7 +85,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(
         Cart, 
         on_delete=models.CASCADE,
-        related_name='cart_items',  # Позволяет обращаться cart.cart_items.all()
+        related_name='items',
         verbose_name="Корзина"
     )
     product = models.ForeignKey(
@@ -100,14 +101,7 @@ class CartItem(models.Model):
     def item_price(self):
         return self.product.price * self.quantity
     
-    def clean(self):
-        if self.quantity > self.product.stock:
-            raise ValidationError(f"Недостаточно товара на складе. Доступно: {self.product.stock}")
-    
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
-    
     class Meta:
         verbose_name = "Элемент корзины"
         verbose_name_plural = "Элементы корзины"
+        unique_together = ['cart', 'product'] 

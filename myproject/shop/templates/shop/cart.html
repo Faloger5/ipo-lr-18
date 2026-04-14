@@ -1,0 +1,83 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Моя корзина{% endblock %}
+
+{% block content %}
+<h1>Корзина</h1>
+
+{% if cart_items %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Количество</th>
+                <th>Стоимость</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <a href="{% url 'product_detail' item.product.id %}">{{ item.product.name }}</a>
+                    </td>
+                    <td>{{ item.product.price }} руб.</td>
+                    <td>
+                        <form method="post" action="{% url 'update_cart' item.id %}">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
+                            <button type="submit" class="btn btn-primary">Обновить</button>
+                        </form>
+                    </td>
+                    <td>{{ item.item_price }} руб.</td>
+                    <td>
+                        <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="total-label"><strong>Итого:</strong></td>
+                <td colspan="2"><strong>{{ total_price }} руб.</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div class="cart-actions">
+        <a href="{% url 'catalog' %}" class="btn btn-secondary">Продолжить покупки</a>
+    </div>
+{% else %}
+    <p>Ваша корзина пуста</p>
+    <a href="{% url 'catalog' %}" class="btn btn-primary">Перейти в каталог</a>
+{% endif %}
+
+<style>
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .cart-table th, .cart-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .cart-table th {
+        background-color: #f8f9fa;
+    }
+    .cart-table input {
+        width: 60px;
+        padding: 5px;
+    }
+    .total-label {
+        text-align: right;
+    }
+    .cart-actions {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

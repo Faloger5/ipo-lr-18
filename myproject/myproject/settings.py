@@ -108,7 +108,7 @@ STATIC_URL = 'static/'
 import os
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = 'media'
 
 # Куда перенаправлять после успешного входа
 LOGIN_REDIRECT_URL = 'catalog'  # название твоего URL-маршрута
@@ -118,3 +118,18 @@ LOGOUT_REDIRECT_URL = 'catalog'
 
 # URL страницы входа (для @login_required)
 LOGIN_URL = '/accounts/login/'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],  # ← пустой список
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
