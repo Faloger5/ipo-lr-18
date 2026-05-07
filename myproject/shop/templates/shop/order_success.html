@@ -1,0 +1,49 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Заказ оформлен{% endblock %}
+
+{% block content %}
+<h1>Спасибо за заказ!</h1>
+
+<div class="success-message">
+    <p>Ваш заказ №<strong>{{ order.id }}</strong> успешно оформлен.</p>
+    <p>Чек отправлен на вашу электронную почту.</p>
+    <p>Сумма заказа: <strong>{{ order.total_amount }} руб.</strong></p>
+    <p>Статус заказа: <strong>{{ order.get_status_display }}</strong></p>
+    
+    <div class="order-details">
+        <h3>Детали заказа:</h3>
+        <p><strong>Адрес доставки:</strong> {{ order.address }}</p>
+        <p><strong>Телефон:</strong> {{ order.phone }}</p>
+        {% if order.comment %}
+            <p><strong>Комментарий:</strong> {{ order.comment }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="actions">
+        <a href="{% url 'catalog' %}" class="btn btn-primary">Продолжить покупки</a>
+    </div>
+</div>
+
+<style>
+    .success-message {
+        text-align: center;
+        padding: 40px;
+        background: #d4edda;
+        border-radius: 10px;
+        color: #155724;
+    }
+    
+    .order-details {
+        text-align: left;
+        margin-top: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+    }
+    
+    .actions {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

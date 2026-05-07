@@ -110,19 +110,14 @@ import os
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 
-# Куда перенаправлять после успешного входа
-LOGIN_REDIRECT_URL = 'catalog'  # название твоего URL-маршрута
-
-# Куда перенаправлять после выхода
-LOGOUT_REDIRECT_URL = 'catalog'
-
-# URL страницы входа (для @login_required)
 LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],  # ← пустой список
+        'DIRS': [],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,3 +128,7 @@ TEMPLATES = [
         },
     },
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'shop@example.com'

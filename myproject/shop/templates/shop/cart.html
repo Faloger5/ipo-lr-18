@@ -24,9 +24,9 @@
                     </td>
                     <td>{{ item.product.price }} руб.</td>
                     <td>
-                        <form method="post" action="{% url 'update_cart' item.id %}">
+                        <form method="post" action="{% url 'update_cart' item.id %}" style="display: flex; gap: 5px;">
                             {% csrf_token %}
-                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" style="width: 60px;">
                             <button type="submit" class="btn btn-primary">Обновить</button>
                         </form>
                     </td>
@@ -41,16 +41,18 @@
             {% endfor %}
         </tbody>
         <tfoot>
-            <tr>
-                <td colspan="3" class="total-label"><strong>Итого:</strong></td>
-                <td colspan="2"><strong>{{ total_price }} руб.</strong></td>
+            <tr style="font-weight: bold; background-color: #f8f9fa;">
+                <td colspan="3" style="text-align: right;">Итого:</td>
+                <td colspan="2">{{ total_price }} руб.</td>
             </tr>
         </tfoot>
     </table>
     
-    <div class="cart-actions">
+    <div class="cart-actions" style="margin-top: 20px; display: flex; gap: 10px;">
         <a href="{% url 'catalog' %}" class="btn btn-secondary">Продолжить покупки</a>
+        <a href="{% url 'checkout' %}" class="btn btn-primary" style="background-color: #28a745;">Оформить заказ</a>
     </div>
+    
 {% else %}
     <p>Ваша корзина пуста</p>
     <a href="{% url 'catalog' %}" class="btn btn-primary">Перейти в каталог</a>
@@ -70,14 +72,8 @@
         background-color: #f8f9fa;
     }
     .cart-table input {
-        width: 60px;
         padding: 5px;
-    }
-    .total-label {
-        text-align: right;
-    }
-    .cart-actions {
-        margin-top: 20px;
+        text-align: center;
     }
 </style>
 {% endblock %}

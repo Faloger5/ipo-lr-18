@@ -1,0 +1,146 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Оформление заказа{% endblock %}
+
+{% block content %}
+<h1>Оформление заказа</h1>
+
+<div class="checkout-container">
+    <div class="order-summary">
+        <h2>Ваш заказ</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.price }} руб.</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.item_price }} руб.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="total-label"><strong>Итого:</strong></td>
+                    <td><strong>{{ total_price }} руб.</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="delivery-form">
+        <h2>Данные для доставки</h2>
+        
+        <form method="post" id="checkoutForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="email">Email для получения чека *</label>
+                <input type="email" name="email" id="email" required 
+                       placeholder="example@mail.ru" value="{{ email|default:'' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Адрес доставки *</label>
+                <input type="text" name="address" id="address" required 
+                       placeholder="г. Минск, ул. Примерная, д. 1, кв. 1" value="{{ address|default:'' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Телефон * (начинается с +)</label>
+                <input type="tel" name="phone" id="phone" required 
+                       placeholder="+375291234567" pattern="^\+[0-9]{10,15}$"
+                       title="Номер должен начинаться с + и содержать только цифры"
+                       value="{{ phone|default:'' }}">
+                <small>Пример: +375291234567</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="comment">Комментарий к заказу</label>
+                <textarea name="comment" id="comment" rows="3" 
+                          placeholder="Пожелания к доставке...">{{ comment|default:'' }}</textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Подтвердить заказ</button>
+                <a href="{% url 'cart' %}" class="btn btn-secondary">Вернуться в корзину</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Автоматически добавляем + в начало номера, если пользователь забыл
+    document.getElementById('phone').addEventListener('input', function(e) {
+        let value = e.target.value;
+        if (value && !value.startsWith('+')) {
+            e.target.value = '+' + value.replace(/[^0-9]/g, '');
+        }
+    });
+</script>
+
+<style>
+    .checkout-container {
+        display: flex;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    .order-summary {
+        flex: 1;
+        min-width: 300px;
+    }
+    .delivery-form {
+        flex: 1;
+        min-width: 300px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f8f9fa;
+    }
+    .total-label {
+        text-align: right;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 12px;
+    }
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+</style>
+{% endblock %}

@@ -5,7 +5,6 @@
 {% block content %}
 <h1>Каталог товаров</h1>
 
-<!-- Форма фильтрации и поиска -->
 <div class="filters">
     <form method="get" action="{% url 'catalog' %}">
         <input type="text" name="search" placeholder="Поиск по названию..." value="{{ search_query }}">
@@ -33,7 +32,6 @@
     </form>
 </div>
 
-<!-- Результаты -->
 <p>Найдено товаров: {{ products|length }}</p>
 
 <div class="products-grid">
