@@ -9,6 +9,13 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
 from datetime import datetime
 from .models import Product, Category, Manufacturer, Cart, CartItem, Order, OrderItem
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .serializers import (
+    CategorySerializer, ManufacturerSerializer, 
+    ProductSerializer, CartSerializer, CartItemSerializer
+)
 
 
 def product_list(request):
@@ -135,7 +142,6 @@ def checkout(request):
         phone = request.POST.get('phone', '').strip()
         comment = request.POST.get('comment', '').strip()
 
-        # Проверка обязательных полей
         errors = []
         if not customer_email:
             errors.append('Email обязателен')
@@ -196,12 +202,6 @@ def checkout(request):
 
 Спасибо за покупку!
         """
-        print("=" * 50)
-        print("ПИСЬМО ДОЛЖНО БЫТЬ ОТПРАВЛЕНО")
-        print(f"Кому: {customer_email}")
-        print(f"Тема: {subject}")
-        print(f"Текст: {message}")
-        print("=" * 50)
         
         try:
             send_mail(
@@ -227,7 +227,6 @@ def checkout(request):
 
 
 def generate_receipt_excel(order):
-    """Генерация Excel файла чека"""
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Чек"
@@ -298,3 +297,105 @@ def generate_receipt_excel(order):
 def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'shop/order_success.html', {'order': order})
+
+
+# ==================== API Views ====================
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class ManufacturerViewSet(viewsets.ModelViewSet):
+    queryset = Manufacturer.objects.all()
+    serializer_class = ManufacturerSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        category = self.request.query_params.get('category', None)
+        manufacturer = self.request.query_params.get('manufacturer', None)
+        search = self.request.query_params.get('search', None)
+        
+        if category:
+            queryset = queryset.filter(category_id=category)
+        if manufacturer:
+            queryset = queryset.filter(manufacturer_id=manufacturer)
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        
+        return queryset
+
+
+class CartViewSet(viewsets.ModelViewSet):
+    serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return Cart.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def add_item(self, request, pk=None):
+        cart = self.get_object()
+        product_id = request.data.get('product_id')
+        quantity = request.data.get('quantity', 1)
+        
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response({'error': 'Товар не найден'}, status=404)
+        
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not created:
+            if cart_item.quantity + quantity <= product.stock:
+                cart_item.quantity += quantity
+                cart_item.save()
+            else:
+                return Response({'error': 'Недостаточно товара на складе'}, status=400)
+        
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['delete'])
+    def remove_item(self, request, pk=None):
+        cart = self.get_object()
+        item_id = request.data.get('item_id')
+        
+        try:
+            cart_item = CartItem.objects.get(id=item_id, cart=cart)
+            cart_item.delete()
+            return Response({'message': 'Товар удалён из корзины'})
+        except CartItem.DoesNotExist:
+            return Response({'error': 'Товар не найден в корзине'}, status=404)
+
+
+class CartItemViewSet(viewsets.ModelViewSet):
+    serializer_class = CartItemSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return CartItem.objects.filter(cart__user=self.request.user)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        quantity = request.data.get('quantity')
+        
+        if quantity and quantity > instance.product.stock:
+            return Response({'error': 'Недостаточно товара на складе'}, status=400)
+        
+        return super().update(request, *args, **kwargs)
