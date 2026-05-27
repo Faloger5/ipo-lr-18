@@ -136,9 +136,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'gtllop098@gmail.com'      # ваш Gmail
-EMAIL_HOST_PASSWORD = 'cicdckubavoiiptw'     # пароль приложения Gmail (не основной пароль!)
-DEFAULT_FROM_EMAIL = 'gtllop098@gmail.com'  # ← было 'your_email@gmail.com'
+EMAIL_HOST_USER = 'gtllop098@gmail.com'     
+EMAIL_HOST_PASSWORD = 'cicdckubavoiiptw'    
+DEFAULT_FROM_EMAIL = 'gtllop098@gmail.com'  
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -150,4 +150,12 @@ REST_FRAMEWORK = {
     ]
 }
 
+# Статические файлы (CSS, JS)
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
+# Медиа-файлы (загруженные пользователем фото)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'  # исправляем с 'media' на BASE_DIR / 'media'

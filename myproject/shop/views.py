@@ -18,6 +18,8 @@ from .serializers import (
 )
 
 
+from django.core.paginator import Paginator  # добавьте в начало файла
+
 def product_list(request):
     products = Product.objects.all()
 
@@ -35,15 +37,20 @@ def product_list(request):
     if manufacturer_id:
         products = products.filter(manufacturer_id=manufacturer_id)
 
+    # Пагинация (9 товаров на страницу)
+    paginator = Paginator(products, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'products': products,
+        'page_obj': page_obj,  # вместо 'products'
         'categories': Category.objects.all(),
         'manufacturers': Manufacturer.objects.all(),
         'search_query': search_query,
         'selected_category': category_id,
         'selected_manufacturer': manufacturer_id,
     }
-    return render(request, 'shop/product_list.html', context)
+    return render(request, 'shop/catalog.html', context)
 
 
 def product_detail(request, pk):
@@ -368,3 +375,12 @@ class CartItemViewSet(viewsets.ModelViewSet):
         if quantity and int(quantity) > instance.product.stock:
             return Response({'error': 'Недостаточно товара на складе'}, status=400)
         return super().update(request, *args, **kwargs)
+    
+def home(request):
+    """Главная страница"""
+    products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]  # последние 6 товаров
+    categories = Category.objects.all()
+    return render(request, 'shop/index.html', {
+        'products': products,
+        'categories': categories,
+    })

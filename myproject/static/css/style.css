@@ -1,0 +1,18 @@
+.product-card {
+    transition: transform 0.2s;
+    height: 100%;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.price {
+    color: #ff6b35;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.stock-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}

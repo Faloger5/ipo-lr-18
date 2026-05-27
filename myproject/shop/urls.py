@@ -10,7 +10,7 @@ router.register(r'carts', views.CartViewSet, basename='cart')
 router.register(r'cart-items', views.CartItemViewSet, basename='cartitem')
 
 urlpatterns = [
-    path('', views.product_list, name='product_list'),
+    path('', views.home, name='home'),
     path('catalog/', views.product_list, name='catalog'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('cart/', views.cart_view, name='cart'),

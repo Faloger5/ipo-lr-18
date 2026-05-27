@@ -1,74 +1,68 @@
 {% extends 'shop/base.html' %}
+{% load static %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<div class="product-detail">
-    <div class="product-image">
+<!-- Хлебные крошки -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catalog' %}">Каталог</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Левая колонка: фото -->
+    <div class="col-md-6 mb-4">
         {% if product.photo %}
-            <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+            <img src="{{ product.photo.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}">
         {% else %}
-            <div class="no-image">Нет фото</div>
+            <div class="bg-secondary d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                <i class="fas fa-image fa-5x text-white"></i>
+            </div>
         {% endif %}
     </div>
     
-    <div class="product-info">
-        <h1>{{ product.name }}</h1>
-        <p class="price">{{ product.price }} руб.</p>
+    <!-- Правая колонка: информация -->
+    <div class="col-md-6">
+        <h1 class="mb-3">{{ product.name }}</h1>
+        <p class="text-muted">
+            <i class="fas fa-building"></i> Производитель: {{ product.manufacturer.name }}
+        </p>
+        <p class="text-muted">
+            <i class="fas fa-tag"></i> Категория: {{ product.category.name }}
+        </p>
+        <p class="price display-4">{{ product.price }} руб.</p>
         
-        <div class="product-meta">
-            <p><strong>Категория:</strong> {{ product.category.name }}</p>
-            <p><strong>Производитель:</strong> {{ product.manufacturer.name }}</p>
-            <p><strong>Страна:</strong> {{ product.manufacturer.country }}</p>
+        <div class="mb-4">
+            {% if product.stock > 0 %}
+                <span class="badge bg-success fs-6 p-2">✅ В наличии: {{ product.stock }} шт.</span>
+            {% else %}
+                <span class="badge bg-danger fs-6 p-2">❌ Нет в наличии</span>
+            {% endif %}
         </div>
         
-        {% if product.stock > 0 %}
-            <p class="stock">В наличии: {{ product.stock }} шт.</p>
-            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Добавить в корзину</a>
-        {% else %}
-            <p class="stock out">Нет в наличии</p>
-        {% endif %}
-        
-        <div class="description">
-            <h3>Описание:</h3>
-            <p>{{ product.description }}</p>
+        <div class="description mb-4">
+            <h4>Описание:</h4>
+            <p>{{ product.description|linebreaks }}</p>
         </div>
         
-        <a href="{% url 'catalog' %}" class="btn btn-secondary">← Назад в каталог</a>
+        <div class="d-grid gap-2 d-md-block">
+            {% if product.stock > 0 %}
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-lg">
+                    🛒 Добавить в корзину
+                </a>
+            {% else %}
+                <button class="btn btn-secondary btn-lg" disabled>
+                    ❌ Нет в наличии
+                </button>
+            {% endif %}
+            <a href="{% url 'catalog' %}" class="btn btn-outline-secondary btn-lg">
+                ← Назад в каталог
+            </a>
+        </div>
     </div>
 </div>
-
-<style>
-    .product-detail {
-        display: flex;
-        gap: 40px;
-        flex-wrap: wrap;
-    }
-    .product-image {
-        flex: 1;
-        min-width: 300px;
-    }
-    .product-image img {
-        width: 100%;
-        border-radius: 10px;
-    }
-    .product-info {
-        flex: 1;
-    }
-    .price {
-        font-size: 28px;
-        font-weight: bold;
-        color: #ff6b35;
-    }
-    .stock {
-        color: green;
-        font-size: 16px;
-    }
-    .stock.out {
-        color: red;
-    }
-    .description {
-        margin: 20px 0;
-    }
-</style>
 {% endblock %}
