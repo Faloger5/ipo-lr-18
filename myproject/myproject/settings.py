@@ -131,13 +131,18 @@ TEMPLATES = [
 ]
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'shop@example.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'gtllop098@gmail.com'      # ваш Gmail
+EMAIL_HOST_PASSWORD = 'cicdckubavoiiptw'     # пароль приложения Gmail (не основной пароль!)
+DEFAULT_FROM_EMAIL = 'gtllop098@gmail.com'  # ← было 'your_email@gmail.com'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
