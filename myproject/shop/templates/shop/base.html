@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Мой магазин{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Навигационная панель -->
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'catalog' %}">
@@ -49,7 +49,6 @@
         </div>
     </nav>
 
-    <!-- Сообщения -->
     <div class="container mt-3">
         {% if messages %}
             {% for message in messages %}
@@ -61,14 +60,12 @@
         {% endif %}
     </div>
 
-    <!-- Основной контент -->
     <main class="py-4">
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
 
-    <!-- Футер -->
     <footer class="bg-dark text-white mt-5 py-4">
         <div class="container text-center">
             <p>&copy; 2024 Мой магазин. Все права защищены.</p>
@@ -80,11 +77,28 @@
         </div>
     </footer>
 
-    <!-- Bootstrap JS + Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     {% load static %}
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
+
+{% if user.is_authenticated %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'profile' %}">
+            <i class="fas fa-user"></i> {{ user.username }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+    </li>
+{% else %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'login' %}">Войти</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+    </li>
+{% endif %}
 </body>
 </html>

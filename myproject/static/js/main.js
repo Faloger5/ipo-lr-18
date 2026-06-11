@@ -1,4 +1,14 @@
-// Получение CSRF-токена из cookies
+function handleAuthError(error) {
+    if (error.status === 401) {
+        showNotification('Сессия истекла. Пожалуйста, войдите снова.', 'error');
+        setTimeout(() => {
+            window.location.href = '/accounts/login/';
+        }, 2000);
+    } else if (error.status === 403) {
+        showNotification('Недостаточно прав для выполнения этого действия', 'error');
+    }
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -16,7 +26,6 @@ function getCookie(name) {
 
 const csrftoken = getCookie('csrftoken');
 
-// Показать уведомление
 function showNotification(message, type = 'success') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
@@ -32,12 +41,10 @@ function showNotification(message, type = 'success') {
     setTimeout(() => alertDiv.remove(), 3000);
 }
 
-// Загрузка товаров через API
 async function loadProductsFromAPI() {
     const container = document.getElementById('api-products-container');
     if (!container) return;
     
-    // Показать спиннер
     container.innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
@@ -85,13 +92,17 @@ async function loadProductsFromAPI() {
     }
 }
 
-// Добавление в корзину через API
 window.addToCartAPI = async function(productId) {
     try {
         const response = await fetch(`/api/carts/`, {
             method: 'GET',
             headers: { 'X-CSRFToken': csrftoken },
         });
+        
+        if (response.status === 401) {
+            handleAuthError({ status: 401 });
+            return;
+        }
         const carts = await response.json();
         
         let cartId;
@@ -140,7 +151,6 @@ function escapeHtml(str) {
     });
 }
 
-// Загрузка при готовности DOM
 document.addEventListener('DOMContentLoaded', function() {
     loadProductsFromAPI();
 });

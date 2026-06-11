@@ -4,7 +4,7 @@
 {% block title %}Главная{% endblock %}
 
 {% block content %}
-<!-- Hero-секция -->
+
 <div class="bg-primary text-white text-center py-5 mb-5 rounded-3">
     <div class="container">
         <h1 class="display-4">Добро пожаловать в наш магазин!</h1>
@@ -13,7 +13,6 @@
     </div>
 </div>
 
-<!-- Секция категорий -->
 <h2 class="text-center mb-4">Категории товаров</h2>
 <div class="row mb-5">
     {% for category in categories %}
@@ -33,7 +32,6 @@
     {% endfor %}
 </div>
 
-<!-- Секция популярных/новых товаров -->
 <h2 class="text-center mb-4">Новые поступления</h2>
 <div class="row">
     {% for product in products %}

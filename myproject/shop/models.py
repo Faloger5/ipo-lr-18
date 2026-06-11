@@ -149,3 +149,59 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Товар в заказе"
         verbose_name_plural = "Товары в заказе"
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('customer', 'Покупатель'),
+        ('manager', 'Менеджер'),
+        ('admin', 'Администратор'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone = models.CharField(max_length=20, verbose_name="Телефон", blank=True)
+    address = models.TextField(verbose_name="Адрес", blank=True)
+    full_name = models.CharField(max_length=200, verbose_name="Полное имя", blank=True)
+    
+    favorite_category = models.ForeignKey(
+        'Category', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name="Любимая категория"
+    )
+    delivery_city = models.CharField(max_length=100, verbose_name="Город доставки", blank=True)
+    postal_code = models.CharField(max_length=20, verbose_name="Почтовый индекс", blank=True)
+    
+    role = models.CharField(
+        max_length=20, 
+        choices=ROLE_CHOICES, 
+        default='customer',
+        verbose_name="Роль"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата регистрации")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    
+    def __str__(self):
+        return f"Профиль {self.user.username}"
+    
+    def is_admin_or_manager(self):
+        return self.role in ['admin', 'manager']
+    
+    class Meta:
+        verbose_name = "Профиль пользователя"
+        verbose_name_plural = "Профили пользователей"
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    if hasattr(instance, 'profile'):
+        instance.profile.save()

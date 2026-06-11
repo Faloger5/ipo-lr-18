@@ -150,12 +150,16 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Статические файлы (CSS, JS)
+import os
+
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Медиа-файлы (загруженные пользователем фото)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'  # исправляем с 'media' на BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

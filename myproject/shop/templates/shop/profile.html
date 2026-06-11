@@ -1,0 +1,26 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h3>Личный кабинет</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
+        <p><strong>Полное имя:</strong> {{ user.profile.full_name|default:"Не указано" }}</p>
+        <p><strong>Телефон:</strong> {{ user.profile.phone|default:"Не указан" }}</p>
+        <p><strong>Адрес:</strong> {{ user.profile.address|default:"Не указан" }}</p>
+        <p><strong>Город доставки:</strong> {{ user.profile.delivery_city|default:"Не указан" }}</p>
+        <p><strong>Индекс:</strong> {{ user.profile.postal_code|default:"Не указан" }}</p>
+        <p><strong>Роль:</strong> 
+            {% if user.profile.role == 'admin' %}Администратор
+            {% elif user.profile.role == 'manager' %}Менеджер
+            {% else %}Покупатель{% endif %}
+        </p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary">На главную</a>
+    </div>
+</div>
+{% endblock %}

@@ -2,23 +2,37 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib import messages
-from django.core.mail import EmailMessage   # ← EmailMessage вместо send_mail
+from django.core.mail import EmailMessage
 from django.conf import settings
+from django.core.paginator import Paginator
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
 from datetime import datetime
-from .models import Product, Category, Manufacturer, Cart, CartItem, Order, OrderItem
-from rest_framework import viewsets, permissions
+
+from rest_framework import viewsets, permissions, generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from .models import Product, Category, Manufacturer, Cart, CartItem, Order, OrderItem, UserProfile
 from .serializers import (
     CategorySerializer, ManufacturerSerializer,
-    ProductSerializer, CartSerializer, CartItemSerializer
+    ProductSerializer, CartSerializer, CartItemSerializer,
+    UserProfileSerializer, OrderSerializer
 )
+from .permissions import IsAdminOrManager, IsOwnerOrAdmin
 
 
-from django.core.paginator import Paginator  # добавьте в начало файла
+def home(request):
+    products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]
+    categories = Category.objects.all()
+    return render(request, 'shop/index.html', {
+        'products': products,
+        'categories': categories,
+    })
+
 
 def product_list(request):
     products = Product.objects.all()
@@ -37,13 +51,12 @@ def product_list(request):
     if manufacturer_id:
         products = products.filter(manufacturer_id=manufacturer_id)
 
-    # Пагинация (9 товаров на страницу)
     paginator = Paginator(products, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
-        'page_obj': page_obj,  # вместо 'products'
+        'page_obj': page_obj,
         'categories': Category.objects.all(),
         'manufacturers': Manufacturer.objects.all(),
         'search_query': search_query,
@@ -156,7 +169,6 @@ def checkout(request):
                 'comment': comment,
             })
 
-        # Создаём заказ
         order = Order.objects.create(
             user=request.user,
             customer_email=customer_email,
@@ -177,10 +189,8 @@ def checkout(request):
             cart_item.product.stock -= cart_item.quantity
             cart_item.product.save()
 
-        # Генерируем Excel-чек
         excel_buffer = generate_receipt_excel(order)
 
-        # Отправляем письмо с вложением через EmailMessage
         subject = f'Ваш заказ №{order.id} оформлен'
         body = (
             f'Здравствуйте, {request.user.username}!\n\n'
@@ -289,7 +299,10 @@ def order_success(request, order_id):
     return render(request, 'shop/order_success.html', {'order': order})
 
 
-# ── REST API ViewSets ──────────────────────────────────────────────────────────
+@login_required
+def profile_view(request):
+    return render(request, 'shop/profile.html')
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -306,8 +319,14 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsAdminOrManager]
+        else:
+            self.permission_classes = [AllowAny]
+        return super().get_permissions()
+    
     def get_queryset(self):
         qs = Product.objects.all()
         params = self.request.query_params
@@ -375,12 +394,33 @@ class CartItemViewSet(viewsets.ModelViewSet):
         if quantity and int(quantity) > instance.product.stock:
             return Response({'error': 'Недостаточно товара на складе'}, status=400)
         return super().update(request, *args, **kwargs)
+
+
+class MeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     
-def home(request):
-    """Главная страница"""
-    products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]  # последние 6 товаров
-    categories = Category.objects.all()
-    return render(request, 'shop/index.html', {
-        'products': products,
-        'categories': categories,
-    })
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user.profile)
+        return Response(serializer.data)
+    
+    def patch(self, request):
+        profile = request.user.profile
+        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MyOrdersAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializer
+    
+    def get_queryset(self):
+        if hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'admin':
+            return Order.objects.all()
+        return Order.objects.filter(user=self.request.user)
+    
+@login_required
+def profile_view(request):
+    return render(request, 'shop/profile.html')

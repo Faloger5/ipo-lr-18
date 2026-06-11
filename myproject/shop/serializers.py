@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Manufacturer, Product, Cart, CartItem
+from .models import Category, Manufacturer, Product, Cart, CartItem, UserProfile, Order, OrderItem
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -49,3 +49,38 @@ class CartSerializer(serializers.ModelSerializer):
     
     def get_total_price(self, obj):
         return obj.total_price()
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+    email = serializers.ReadOnlyField(source='user.email')
+    role_display = serializers.ReadOnlyField(source='get_role_display')
+    
+    class Meta:
+        model = UserProfile
+        fields = ['id', 'username', 'email', 'full_name', 'phone', 'address', 
+                  'role', 'role_display', 'favorite_category', 'delivery_city', 
+                  'postal_code', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'username', 'email']
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.ReadOnlyField(source='product.name')
+    product_id = serializers.ReadOnlyField(source='product.id')
+    
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'product_id', 'product_name', 'quantity', 'price']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    status_display = serializers.ReadOnlyField(source='get_status_display')
+    username = serializers.ReadOnlyField(source='user.username')
+    
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'username', 'customer_email', 'created_at', 
+                  'address', 'phone', 'comment', 'total_amount', 'status', 
+                  'status_display', 'items']
+        read_only_fields = ['id', 'created_at', 'total_amount']

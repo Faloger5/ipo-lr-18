@@ -61,3 +61,11 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_filter = ('order__status',)
     search_fields = ('product__name', 'order__user__username')
 
+from .models import UserProfile
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'full_name', 'phone', 'role', 'created_at')
+    list_filter = ('role', 'created_at')
+    search_fields = ('user__username', 'full_name', 'phone')
+    readonly_fields = ('created_at', 'updated_at')

@@ -19,7 +19,10 @@ urlpatterns = [
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('checkout/', views.checkout, name='checkout'),
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+    path('profile/', views.profile_view, name='profile'),
     
     path('api/', include(router.urls)),
+    path('api/me/', views.MeAPIView.as_view(), name='api_me'),
+    path('api/my-orders/', views.MyOrdersAPIView.as_view(), name='api_my_orders'),
     path('api-auth/', include('rest_framework.urls')),
 ]

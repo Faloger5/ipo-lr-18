@@ -7,7 +7,7 @@
 <h1 class="mb-4">Каталог товаров</h1>
 
 <div class="row">
-    <!-- Боковая панель фильтров -->
+
     <div class="col-md-3 mb-4">
         <div class="card">
             <div class="card-header bg-primary text-white">
@@ -53,8 +53,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- Сетка товаров -->
+
     <div class="col-md-9">
         <div class="row">
             {% for product in page_obj %}
@@ -95,7 +94,6 @@
             {% endfor %}
         </div>
         
-        <!-- Пагинация -->
         {% if page_obj.has_other_pages %}
         <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
