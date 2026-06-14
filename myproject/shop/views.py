@@ -301,8 +301,12 @@ def order_success(request, order_id):
 
 @login_required
 def profile_view(request):
-    return render(request, 'shop/profile.html')
+    # Передаём категории для выпадающего списка «Любимая категория»
+    categories = Category.objects.all()
+    return render(request, 'shop/profile.html', {'categories': categories})
 
+
+# ───────────────────────── API ViewSets ─────────────────────────
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -319,14 +323,14 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             self.permission_classes = [IsAdminOrManager]
         else:
             self.permission_classes = [AllowAny]
         return super().get_permissions()
-    
+
     def get_queryset(self):
         qs = Product.objects.all()
         params = self.request.query_params
@@ -398,11 +402,11 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         serializer = UserProfileSerializer(request.user.profile)
         return Response(serializer.data)
-    
+
     def patch(self, request):
         profile = request.user.profile
         serializer = UserProfileSerializer(profile, data=request.data, partial=True)
@@ -415,12 +419,46 @@ class MeAPIView(APIView):
 class MyOrdersAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = OrderSerializer
-    
+
     def get_queryset(self):
         if hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'admin':
             return Order.objects.all()
         return Order.objects.filter(user=self.request.user)
-    
-@login_required
-def profile_view(request):
-    return render(request, 'shop/profile.html')
+
+
+class ChangePasswordAPIView(APIView):
+    """POST /api/change-password/  — смена пароля текущего пользователя."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        current_password = request.data.get('current_password', '')
+        new_password = request.data.get('new_password', '')
+
+        if not current_password or not new_password:
+            return Response(
+                {'error': 'Укажите текущий и новый пароль'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        if not user.check_password(current_password):
+            return Response(
+                {'error': 'Текущий пароль введён неверно'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'error': 'Новый пароль должен содержать минимум 8 символов'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save()
+
+        # После смены пароля Django инвалидирует сессию —
+        # обновляем её, чтобы пользователь не вышел автоматически.
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, user)
+
+        return Response({'message': 'Пароль успешно изменён'})

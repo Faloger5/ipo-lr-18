@@ -3,24 +3,421 @@
 {% block title %}Личный кабинет{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header bg-primary text-white">
-        <h3>Личный кабинет</h3>
+<div class="container py-4">
+
+  <!-- Заголовок с ролью -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="mb-0">Личный кабинет</h2>
+    {% if user.profile.role == 'admin' %}
+      <span class="badge bg-danger fs-6"><i class="fas fa-crown me-1"></i>Администратор</span>
+    {% elif user.profile.role == 'manager' %}
+      <span class="badge bg-warning text-dark fs-6"><i class="fas fa-user-tie me-1"></i>Менеджер</span>
+    {% else %}
+      <span class="badge bg-success fs-6"><i class="fas fa-user me-1"></i>Покупатель</span>
+    {% endif %}
+  </div>
+
+  <!-- Вкладки -->
+  <ul class="nav nav-tabs mb-4" id="profileTabs">
+    <li class="nav-item">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-profile">
+        <i class="fas fa-user me-1"></i>Профиль
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-orders">
+        <i class="fas fa-box me-1"></i>Мои заказы
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-settings">
+        <i class="fas fa-cog me-1"></i>Настройки
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ===================== ПРОФИЛЬ ===================== -->
+    <div class="tab-pane fade show active" id="tab-profile">
+      <div class="row">
+
+        <!-- Просмотр данных -->
+        <div class="col-md-5 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Мои данные</h5>
+            </div>
+            <div class="card-body">
+              <table class="table table-borderless mb-0">
+                <tr><th width="45%">Логин</th><td id="view-username">{{ user.username }}</td></tr>
+                <tr><th>Email</th><td id="view-email">{{ user.email|default:"—" }}</td></tr>
+                <tr><th>Полное имя</th><td id="view-fullname">{{ user.profile.full_name|default:"—" }}</td></tr>
+                <tr><th>Телефон</th><td id="view-phone">{{ user.profile.phone|default:"—" }}</td></tr>
+                <tr><th>Адрес</th><td id="view-address">{{ user.profile.address|default:"—" }}</td></tr>
+                <tr><th>Город доставки</th><td id="view-city">{{ user.profile.delivery_city|default:"—" }}</td></tr>
+                <tr><th>Индекс</th><td id="view-postal">{{ user.profile.postal_code|default:"—" }}</td></tr>
+                <tr>
+                  <th>Любимая категория</th>
+                  <td id="view-category">{{ user.profile.favorite_category.name|default:"—" }}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Форма редактирования -->
+        <div class="col-md-7 mb-4">
+          <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+              <h5 class="mb-0"><i class="fas fa-pen me-2"></i>Редактировать профиль</h5>
+            </div>
+            <div class="card-body">
+              <div id="profile-alert" class="alert d-none"></div>
+
+              <div class="mb-3">
+                <label class="form-label">Полное имя</label>
+                <input type="text" id="edit-fullname" class="form-control"
+                       value="{{ user.profile.full_name }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Телефон</label>
+                <input type="text" id="edit-phone" class="form-control"
+                       placeholder="+7..." value="{{ user.profile.phone }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Адрес</label>
+                <textarea id="edit-address" class="form-control" rows="2">{{ user.profile.address }}</textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-7 mb-3">
+                  <label class="form-label">Город доставки</label>
+                  <input type="text" id="edit-city" class="form-control"
+                         value="{{ user.profile.delivery_city }}">
+                </div>
+                <div class="col-md-5 mb-3">
+                  <label class="form-label">Почтовый индекс</label>
+                  <input type="text" id="edit-postal" class="form-control"
+                         value="{{ user.profile.postal_code }}">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Любимая категория</label>
+                <select id="edit-category" class="form-select">
+                  <option value="">— не выбрана —</option>
+                  {% for cat in categories %}
+                    <option value="{{ cat.id }}"
+                      {% if user.profile.favorite_category_id == cat.id %}selected{% endif %}>
+                      {{ cat.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <button class="btn btn-primary" onclick="saveProfile()">
+                <i class="fas fa-save me-1"></i>Сохранить
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="card-body">
-        <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email|default:"Не указан" }}</p>
-        <p><strong>Полное имя:</strong> {{ user.profile.full_name|default:"Не указано" }}</p>
-        <p><strong>Телефон:</strong> {{ user.profile.phone|default:"Не указан" }}</p>
-        <p><strong>Адрес:</strong> {{ user.profile.address|default:"Не указан" }}</p>
-        <p><strong>Город доставки:</strong> {{ user.profile.delivery_city|default:"Не указан" }}</p>
-        <p><strong>Индекс:</strong> {{ user.profile.postal_code|default:"Не указан" }}</p>
-        <p><strong>Роль:</strong> 
-            {% if user.profile.role == 'admin' %}Администратор
-            {% elif user.profile.role == 'manager' %}Менеджер
-            {% else %}Покупатель{% endif %}
-        </p>
-        <a href="{% url 'catalog' %}" class="btn btn-primary">На главную</a>
+
+    <!-- ===================== ЗАКАЗЫ ===================== -->
+    <div class="tab-pane fade" id="tab-orders">
+      <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Мои заказы</h5>
+          <button class="btn btn-sm btn-light" onclick="loadOrders()">
+            <i class="fas fa-sync-alt"></i> Обновить
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div id="orders-loading" class="text-center py-4 d-none">
+            <div class="spinner-border text-primary"></div>
+          </div>
+          <div id="orders-error" class="alert alert-danger m-3 d-none"></div>
+          <div id="orders-container">
+            <p class="text-muted text-center py-4">Нажмите «Обновить» для загрузки заказов</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка деталей заказа -->
+      <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="orderModalTitle">Детали заказа</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderModalBody"></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- ===================== НАСТРОЙКИ ===================== -->
+    <div class="tab-pane fade" id="tab-settings">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="fas fa-key me-2"></i>Смена пароля</h5>
+            </div>
+            <div class="card-body">
+              <div id="pwd-alert" class="alert d-none"></div>
+              <div class="mb-3">
+                <label class="form-label">Текущий пароль</label>
+                <input type="password" id="pwd-current" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Новый пароль</label>
+                <input type="password" id="pwd-new" class="form-control">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Повторите новый пароль</label>
+                <input type="password" id="pwd-confirm" class="form-control">
+              </div>
+              <button class="btn btn-warning" onclick="changePassword()">
+                <i class="fas fa-lock me-1"></i>Изменить пароль
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-content -->
 </div>
+
+<script>
+// ---- Утилиты ----
+function getCsrf() {
+  return document.cookie.split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith('csrftoken='))
+    ?.split('=')[1] || '';
+}
+
+function showAlert(id, msg, type = 'success') {
+  const el = document.getElementById(id);
+  el.className = `alert alert-${type}`;
+  el.textContent = msg;
+  el.classList.remove('d-none');
+  setTimeout(() => el.classList.add('d-none'), 4000);
+}
+
+// ---- Сохранение профиля ----
+async function saveProfile() {
+  const body = {
+    full_name:         document.getElementById('edit-fullname').value,
+    phone:             document.getElementById('edit-phone').value,
+    address:           document.getElementById('edit-address').value,
+    delivery_city:     document.getElementById('edit-city').value,
+    postal_code:       document.getElementById('edit-postal').value,
+    favorite_category: document.getElementById('edit-category').value || null,
+  };
+
+  try {
+    const resp = await fetch('/api/me/', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrf(),
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (resp.status === 401 || resp.status === 403) {
+      showAlert('profile-alert', 'Ошибка доступа. Войдите в аккаунт.', 'danger');
+      return;
+    }
+    if (!resp.ok) {
+      const err = await resp.json();
+      showAlert('profile-alert', 'Ошибка: ' + JSON.stringify(err), 'danger');
+      return;
+    }
+
+    const data = await resp.json();
+    // Обновляем блок просмотра без перезагрузки страницы
+    document.getElementById('view-fullname').textContent = data.full_name || '—';
+    document.getElementById('view-phone').textContent    = data.phone || '—';
+    document.getElementById('view-address').textContent  = data.address || '—';
+    document.getElementById('view-city').textContent     = data.delivery_city || '—';
+    document.getElementById('view-postal').textContent   = data.postal_code || '—';
+
+    showAlert('profile-alert', 'Профиль успешно сохранён!', 'success');
+  } catch (e) {
+    showAlert('profile-alert', 'Сетевая ошибка: ' + e.message, 'danger');
+  }
+}
+
+// ---- Загрузка заказов ----
+const STATUS_LABELS = {
+  pending:   ['warning',  'Ожидает обработки'],
+  paid:      ['info',     'Оплачен'],
+  shipped:   ['primary',  'Отправлен'],
+  delivered: ['success',  'Доставлен'],
+  cancelled: ['danger',   'Отменён'],
+};
+
+async function loadOrders() {
+  const container = document.getElementById('orders-container');
+  const loading   = document.getElementById('orders-loading');
+  const errBox    = document.getElementById('orders-error');
+
+  container.innerHTML = '';
+  errBox.classList.add('d-none');
+  loading.classList.remove('d-none');
+
+  try {
+    const resp = await fetch('/api/my-orders/', {
+      headers: { 'X-CSRFToken': getCsrf() },
+    });
+
+    if (resp.status === 401 || resp.status === 403) {
+      errBox.textContent = 'Ошибка доступа (401/403). Войдите в аккаунт.';
+      errBox.classList.remove('d-none');
+      loading.classList.add('d-none');
+      return;
+    }
+
+    const orders = await resp.json();
+    loading.classList.add('d-none');
+
+    if (!orders.length) {
+      container.innerHTML = '<p class="text-muted text-center py-4">У вас пока нет заказов</p>';
+      return;
+    }
+
+    let html = `<table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>№</th><th>Дата</th><th>Сумма</th><th>Статус</th><th></th>
+        </tr>
+      </thead><tbody>`;
+
+    orders.forEach(o => {
+      const [badge, label] = STATUS_LABELS[o.status] || ['secondary', o.status];
+      const date = new Date(o.created_at).toLocaleDateString('ru-RU');
+      html += `<tr>
+        <td>#${o.id}</td>
+        <td>${date}</td>
+        <td>${parseFloat(o.total_amount).toLocaleString('ru-RU')} руб.</td>
+        <td><span class="badge bg-${badge}">${label}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary"
+                  onclick='showOrder(${JSON.stringify(o)})'>
+            Подробнее
+          </button>
+        </td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+
+  } catch (e) {
+    loading.classList.add('d-none');
+    errBox.textContent = 'Сетевая ошибка: ' + e.message;
+    errBox.classList.remove('d-none');
+  }
+}
+
+function showOrder(o) {
+  const [badge, label] = STATUS_LABELS[o.status] || ['secondary', o.status];
+  const date = new Date(o.created_at).toLocaleString('ru-RU');
+
+  let rows = '';
+  (o.items || []).forEach((item, i) => {
+    const total = (parseFloat(item.price) * item.quantity).toLocaleString('ru-RU');
+    rows += `<tr>
+      <td>${i+1}</td>
+      <td>${item.product_name}</td>
+      <td>${parseFloat(item.price).toLocaleString('ru-RU')} руб.</td>
+      <td>${item.quantity}</td>
+      <td>${total} руб.</td>
+    </tr>`;
+  });
+
+  document.getElementById('orderModalTitle').textContent = `Заказ №${o.id}`;
+  document.getElementById('orderModalBody').innerHTML = `
+    <div class="row mb-3">
+      <div class="col-sm-6">
+        <p class="mb-1"><strong>Дата:</strong> ${date}</p>
+        <p class="mb-1"><strong>Адрес:</strong> ${o.address}</p>
+        <p class="mb-1"><strong>Телефон:</strong> ${o.phone}</p>
+      </div>
+      <div class="col-sm-6">
+        <p class="mb-1"><strong>Email:</strong> ${o.customer_email}</p>
+        <p class="mb-1"><strong>Статус:</strong> <span class="badge bg-${badge}">${label}</span></p>
+        ${o.comment ? `<p class="mb-1"><strong>Комментарий:</strong> ${o.comment}</p>` : ''}
+      </div>
+    </div>
+    <table class="table table-sm table-bordered">
+      <thead class="table-light">
+        <tr><th>#</th><th>Товар</th><th>Цена</th><th>Кол-во</th><th>Сумма</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr class="table-light">
+          <td colspan="4" class="text-end fw-bold">Итого:</td>
+          <td class="fw-bold">${parseFloat(o.total_amount).toLocaleString('ru-RU')} руб.</td>
+        </tr>
+      </tfoot>
+    </table>`;
+
+  new bootstrap.Modal(document.getElementById('orderModal')).show();
+}
+
+// ---- Смена пароля ----
+async function changePassword() {
+  const current = document.getElementById('pwd-current').value;
+  const newPwd  = document.getElementById('pwd-new').value;
+  const confirm = document.getElementById('pwd-confirm').value;
+
+  if (!current || !newPwd || !confirm) {
+    showAlert('pwd-alert', 'Заполните все поля', 'danger'); return;
+  }
+  if (newPwd !== confirm) {
+    showAlert('pwd-alert', 'Новые пароли не совпадают', 'danger'); return;
+  }
+  if (newPwd.length < 8) {
+    showAlert('pwd-alert', 'Пароль должен быть не короче 8 символов', 'danger'); return;
+  }
+
+  try {
+    const resp = await fetch('/api/change-password/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrf(),
+      },
+      body: JSON.stringify({ current_password: current, new_password: newPwd }),
+    });
+
+    if (resp.status === 401 || resp.status === 403) {
+      showAlert('pwd-alert', 'Ошибка доступа. Войдите в аккаунт.', 'danger'); return;
+    }
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      showAlert('pwd-alert', data.error || 'Ошибка смены пароля', 'danger'); return;
+    }
+
+    showAlert('pwd-alert', 'Пароль успешно изменён!', 'success');
+    document.getElementById('pwd-current').value = '';
+    document.getElementById('pwd-new').value = '';
+    document.getElementById('pwd-confirm').value = '';
+  } catch (e) {
+    showAlert('pwd-alert', 'Сетевая ошибка: ' + e.message, 'danger');
+  }
+}
+
+// Авто-загрузка заказов при переходе на вкладку
+document.querySelector('[data-bs-target="#tab-orders"]')
+  .addEventListener('shown.bs.tab', loadOrders);
+</script>
 {% endblock %}
