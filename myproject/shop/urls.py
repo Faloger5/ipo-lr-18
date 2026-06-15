@@ -10,10 +10,11 @@ router.register(r'carts', views.CartViewSet, basename='cart')
 router.register(r'cart-items', views.CartItemViewSet, basename='cartitem')
 
 urlpatterns = [
-    # ── Обычные страницы ──────────────────────────────────────────
+    # Обычные страницы
     path('', views.home, name='home'),
     path('catalog/', views.product_list, name='catalog'),
-    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('catalog/<int:pk>/', views.product_detail, name='product_detail'),  
+    path('product/<int:pk>/', views.product_detail, name='product_detail_alt'),  
     path('cart/', views.cart_view, name='cart'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:item_id>/', views.update_cart, name='update_cart'),
@@ -22,9 +23,10 @@ urlpatterns = [
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     path('profile/', views.profile_view, name='profile'),
 
-    # ── REST API ──────────────────────────────────────────────────
+    # REST API
     path('api/', include(router.urls)),
     path('api/me/', views.MeAPIView.as_view(), name='api_me'),
+    path('api/me/email/', views.EmailAPIView.as_view(), name='api_me_email'),
     path('api/my-orders/', views.MyOrdersAPIView.as_view(), name='api_my_orders'),
     path('api/change-password/', views.ChangePasswordAPIView.as_view(), name='api_change_password'),
     path('api-auth/', include('rest_framework.urls')),

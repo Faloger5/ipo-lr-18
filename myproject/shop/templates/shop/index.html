@@ -4,7 +4,7 @@
 {% block title %}Главная{% endblock %}
 
 {% block content %}
-
+<!-- Hero-секция -->
 <div class="bg-primary text-white text-center py-5 mb-5 rounded-3">
     <div class="container">
         <h1 class="display-4">Добро пожаловать в наш магазин!</h1>
@@ -13,6 +13,7 @@
     </div>
 </div>
 
+<!-- Секция категорий -->
 <h2 class="text-center mb-4">Категории товаров</h2>
 <div class="row mb-5">
     {% for category in categories %}
@@ -38,10 +39,13 @@
     <div class="col-md-4 col-sm-6 mb-4">
         <div class="card h-100 shadow-sm">
             {% if product.photo %}
-                <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.name }}" 
+                     style="height: auto; max-height: 200px; width: 100%; object-fit: contain; padding: 10px; background: #f5f5f5;">
             {% else %}
-                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="fas fa-image fa-3x text-white"></i>
+                <div class="d-flex align-items-center justify-content-center" 
+                     style="height: 200px; background: #f5f5f5;">
+                    <i class="fas fa-image fa-3x text-secondary"></i>
+                    <span class="ms-2 text-secondary">Нет фото</span>
                 </div>
             {% endif %}
             <div class="card-body">

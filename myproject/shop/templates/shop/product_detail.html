@@ -4,7 +4,7 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-
+<!-- Хлебные крошки -->
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
@@ -14,17 +14,19 @@
 </nav>
 
 <div class="row">
-
+    <!-- Левая колонка: фото -->
     <div class="col-md-6 mb-4">
         {% if product.photo %}
-            <img src="{{ product.photo.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}">
+            <img src="{{ product.photo.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}" 
+                 style="max-height: 400px; width: auto; object-fit: contain; background: #f5f5f5; padding: 20px;">
         {% else %}
-            <div class="bg-secondary d-flex align-items-center justify-content-center rounded" style="height: 400px;">
-                <i class="fas fa-image fa-5x text-white"></i>
+            <div class="d-flex align-items-center justify-content-center rounded bg-light" style="height: 400px;">
+                <i class="fas fa-image fa-5x text-secondary"></i>
+                <span class="ms-3 text-secondary">Нет фото</span>
             </div>
         {% endif %}
     </div>
-
+    
     <div class="col-md-6">
         <h1 class="mb-3">{{ product.name }}</h1>
         <p class="text-muted">
@@ -37,9 +39,9 @@
         
         <div class="mb-4">
             {% if product.stock > 0 %}
-                <span class="badge bg-success fs-6 p-2"> В наличии: {{ product.stock }} шт.</span>
+                <span class="badge bg-success fs-6 p-2">✅ В наличии: {{ product.stock }} шт.</span>
             {% else %}
-                <span class="badge bg-danger fs-6 p-2"> Нет в наличии</span>
+                <span class="badge bg-danger fs-6 p-2">❌ Нет в наличии</span>
             {% endif %}
         </div>
         
@@ -55,7 +57,7 @@
                 </a>
             {% else %}
                 <button class="btn btn-secondary btn-lg" disabled>
-                     Нет в наличии
+                    ❌ Нет в наличии
                 </button>
             {% endif %}
             <a href="{% url 'catalog' %}" class="btn btn-outline-secondary btn-lg">

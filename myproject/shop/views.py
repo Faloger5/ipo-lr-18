@@ -456,8 +456,6 @@ class ChangePasswordAPIView(APIView):
         user.set_password(new_password)
         user.save()
 
-        # После смены пароля Django инвалидирует сессию —
-        # обновляем её, чтобы пользователь не вышел автоматически.
         from django.contrib.auth import update_session_auth_hash
         update_session_auth_hash(request, user)
 
