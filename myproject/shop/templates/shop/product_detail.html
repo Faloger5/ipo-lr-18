@@ -14,28 +14,27 @@
 </nav>
 
 <div class="row">
-    <!-- Левая колонка: фото -->
+    <!-- Левая колонка: иконка сертификата -->
     <div class="col-md-6 mb-4">
-        {% if product.photo %}
-            <img src="{{ product.photo.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}" 
-                 style="max-height: 400px; width: auto; object-fit: contain; background: #f5f5f5; padding: 20px;">
-        {% else %}
-            <div class="d-flex align-items-center justify-content-center rounded bg-light" style="height: 400px;">
-                <i class="fas fa-image fa-5x text-secondary"></i>
-                <span class="ms-3 text-secondary">Нет фото</span>
+        <div class="product-detail-img text-center py-5" style="background: linear-gradient(135deg, #ff6b35, #ff6b6b); min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <i class="fas fa-gift fa-8x text-white mb-4"></i>
+            <h2 class="text-white">{{ product.manufacturer.name }}</h2>
+            <p class="text-white-50">Подарочный сертификат</p>
+            <div class="badge bg-light text-dark fs-6 p-3 mt-3">
+                {{ product.price }} BYN
             </div>
-        {% endif %}
+        </div>
     </div>
     
+    <!-- Правая колонка: информация -->
     <div class="col-md-6">
         <h1 class="mb-3">{{ product.name }}</h1>
-        <p class="text-muted">
-            <i class="fas fa-building"></i> Производитель: {{ product.manufacturer.name }}
-        </p>
-        <p class="text-muted">
-            <i class="fas fa-tag"></i> Категория: {{ product.category.name }}
-        </p>
-        <p class="price display-4">{{ product.price }} руб.</p>
+        <p class="product-price">{{ product.price }} BYN</p>
+        
+        <div class="mb-3">
+            <span class="badge bg-primary"><i class="fas fa-store"></i> {{ product.manufacturer.name }}</span>
+            <span class="badge bg-secondary"><i class="fas fa-tag"></i> {{ product.category.name }}</span>
+        </div>
         
         <div class="mb-4">
             {% if product.stock > 0 %}
@@ -46,8 +45,18 @@
         </div>
         
         <div class="description mb-4">
-            <h4>Описание:</h4>
+            <h4>Описание</h4>
             <p>{{ product.description|linebreaks }}</p>
+        </div>
+        
+        <div class="info-box bg-light p-3 rounded mb-4">
+            <h6><i class="fas fa-info-circle text-primary"></i> Условия использования</h6>
+            <ul class="small text-muted mb-0">
+                <li>Срок действия: 12 месяцев</li>
+                <li>Действителен во всех магазинах сети</li>
+                <li>Не подлежит обмену на деньги</li>
+                <li>Можно использовать частями</li>
+            </ul>
         </div>
         
         <div class="d-grid gap-2 d-md-block">

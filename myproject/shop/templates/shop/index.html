@@ -1,27 +1,30 @@
 {% extends 'shop/base.html' %}
 {% load static %}
 
-{% block title %}Главная{% endblock %}
+{% block title %}Подарочные сертификаты Минска{% endblock %}
 
 {% block content %}
 <!-- Hero-секция -->
-<div class="bg-primary text-white text-center py-5 mb-5 rounded-3">
+<div class="hero-section text-center">
     <div class="container">
-        <h1 class="display-4">Добро пожаловать в наш магазин!</h1>
-        <p class="lead">Лучшие товары по лучшим ценам</p>
-        <a href="{% url 'catalog' %}" class="btn btn-light btn-lg">Перейти в каталог</a>
+        <h1 class="display-3 fw-bold">Подарочные сертификаты</h1>
+        <p class="lead">Лучший подарок — это выбор! Сертификаты в популярные сети магазинов Минска</p>
+        <a href="{% url 'catalog' %}" class="btn btn-light btn-lg">
+            <i class="fas fa-gift"></i> Выбрать сертификат
+        </a>
     </div>
 </div>
 
 <!-- Секция категорий -->
-<h2 class="text-center mb-4">Категории товаров</h2>
+<h2 class="text-center section-title mb-4">Категории сертификатов</h2>
 <div class="row mb-5">
     {% for category in categories %}
     <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 border-0 shadow-sm">
             <div class="card-body">
-                <i class="fas fa-tag fa-3x mb-3 text-primary"></i>
+                <i class="fas fa-store fa-3x mb-3" style="color: #ff6b35;"></i>
                 <h5 class="card-title">{{ category.name }}</h5>
+                <p class="small text-muted">Подарочные сертификаты</p>
                 <a href="{% url 'catalog' %}?category={{ category.id }}" class="btn btn-outline-primary btn-sm">
                     Перейти
                 </a>
@@ -33,32 +36,30 @@
     {% endfor %}
 </div>
 
-<h2 class="text-center mb-4">Новые поступления</h2>
+<!-- Секция популярных сертификатов -->
+<h2 class="text-center section-title mb-4">Популярные сертификаты</h2>
 <div class="row">
     {% for product in products %}
     <div class="col-md-4 col-sm-6 mb-4">
-        <div class="card h-100 shadow-sm">
-            {% if product.photo %}
-                <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.name }}" 
-                     style="height: auto; max-height: 200px; width: 100%; object-fit: contain; padding: 10px; background: #f5f5f5;">
-            {% else %}
-                <div class="d-flex align-items-center justify-content-center" 
-                     style="height: 200px; background: #f5f5f5;">
-                    <i class="fas fa-image fa-3x text-secondary"></i>
-                    <span class="ms-2 text-secondary">Нет фото</span>
-                </div>
-            {% endif %}
+        <div class="card h-100 shadow-sm product-card">
+            <div class="text-center py-4" style="background: linear-gradient(135deg, #ff6b35, #ff6b6b); color: white;">
+                <i class="fas fa-gift fa-3x"></i>
+                <div class="mt-2 fw-bold">{{ product.manufacturer.name }}</div>
+            </div>
             <div class="card-body">
                 <h5 class="card-title">{{ product.name }}</h5>
-                <p class="price">{{ product.price }} руб.</p>
+                <p class="price">{{ product.price }} BYN</p>
+                <p class="small text-muted">
+                    <i class="fas fa-store"></i> {{ product.manufacturer.name }}
+                </p>
                 <a href="{% url 'product_detail' product.id %}" class="btn btn-primary w-100">
-                    Подробнее
+                    <i class="fas fa-eye"></i> Подробнее
                 </a>
             </div>
         </div>
     </div>
     {% empty %}
-        <p class="text-center">Товары не добавлены</p>
+        <p class="text-center">Сертификаты не добавлены</p>
     {% endfor %}
 </div>
 {% endblock %}

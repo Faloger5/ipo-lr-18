@@ -1,24 +1,27 @@
 {% extends 'shop/base.html' %}
 {% load static %}
 
-{% block title %}Каталог{% endblock %}
+{% block title %}Подарочные сертификаты{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Каталог товаров</h1>
+<div class="text-center mb-5">
+    <h1 class="section-title">Подарочные сертификаты</h1>
+    <p class="lead text-muted">Выберите сертификат для подарка из популярных сетей Минска</p>
+</div>
 
 <div class="row">
-
+    <!-- Боковая панель фильтров -->
     <div class="col-md-3 mb-4">
-        <div class="card">
+        <div class="card filter-card">
             <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Фильтры</h5>
+                <h5 class="mb-0"><i class="fas fa-filter"></i> Фильтры</h5>
             </div>
             <div class="card-body">
                 <form method="get" action="{% url 'catalog' %}" id="filterForm">
                     <div class="mb-3">
                         <label class="form-label">Поиск</label>
                         <input type="text" name="search" class="form-control" 
-                               placeholder="Название товара..." value="{{ search_query }}">
+                               placeholder="Название сети..." value="{{ search_query }}">
                     </div>
                     
                     <div class="mb-3">
@@ -35,9 +38,9 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Производитель</label>
+                        <label class="form-label">Сеть магазинов</label>
                         <select name="manufacturer" class="form-select">
-                            <option value="">Все производители</option>
+                            <option value="">Все сети</option>
                             {% for manufacturer in manufacturers %}
                                 <option value="{{ manufacturer.id }}"
                                     {% if selected_manufacturer == manufacturer.id|stringformat:"s" %}selected{% endif %}>
@@ -52,25 +55,34 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Информация о сертификатах -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="fas fa-info-circle"></i> О сертификатах</h6>
+                <p class="small text-muted">Все сертификаты действительны во всех магазинах сети. Срок действия — 12 месяцев с момента покупки.</p>
+            </div>
+        </div>
     </div>
-
+    
+    <!-- Сетка сертификатов -->
     <div class="col-md-9">
         <div class="row">
             {% for product in page_obj %}
             <div class="col-sm-6 col-md-6 col-lg-4 mb-4">
                 <div class="card h-100 shadow-sm product-card">
-                    {% if product.photo %}
-                        <img src="{{ product.photo.url }}" class="card-img-top" alt="{{ product.name }}" 
-                             style="height: 180px; object-fit: cover;">
-                    {% else %}
-                        <div class="bg-secondary d-flex align-items-center justify-content-center" 
-                             style="height: 180px;">
-                            <i class="fas fa-image fa-3x text-white"></i>
-                        </div>
-                    {% endif %}
+                    <!-- Иконка сертификата вместо фото -->
+                    <div class="text-center py-4" style="background: linear-gradient(135deg, #ff6b35, #ff6b6b); color: white;">
+                        <i class="fas fa-gift fa-4x"></i>
+                        <div class="mt-2 fw-bold">{{ product.manufacturer.name }}</div>
+                        <div class="small">{{ product.category.name }}</div>
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="price">{{ product.price }} руб.</p>
+                        <p class="price">{{ product.price }} BYN</p>
+                        <p class="small text-muted">
+                            <i class="fas fa-store"></i> {{ product.manufacturer.name }}
+                        </p>
                         <p class="small text-muted">
                             <i class="fas fa-tag"></i> {{ product.category.name }}
                         </p>
@@ -81,19 +93,23 @@
                         {% endif %}
                     </div>
                     <div class="card-footer bg-transparent">
-                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary w-100">
-                            Подробнее
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-eye"></i> Подробнее
                         </a>
                     </div>
                 </div>
             </div>
             {% empty %}
                 <div class="col-12">
-                    <p class="text-center">Товары не найдены</p>
+                    <div class="text-center py-5">
+                        <i class="fas fa-gift fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Сертификаты не найдены</p>
+                    </div>
                 </div>
             {% endfor %}
         </div>
         
+        <!-- Пагинация -->
         {% if page_obj.has_other_pages %}
         <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">

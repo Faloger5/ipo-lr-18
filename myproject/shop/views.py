@@ -24,6 +24,43 @@ from .serializers import (
 )
 from .permissions import IsAdminOrManager, IsOwnerOrAdmin
 
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def home(request):
+    """Главная страница с ссылками"""
+    return HttpResponse("""
+        <h1>Добро пожаловать в магазин подарочных сертификатов!</h1>
+        <p>
+            <a href="/about/">О авторе</a> | 
+            <a href="/shop_info/">О магазине</a>
+        </p>
+        <p><a href="/catalog/">Перейти в каталог сертификатов</a></p>
+    """)
+
+
+def about(request):
+    """Страница об авторе"""
+    return HttpResponse("""
+        <h1>Об авторе</h1>
+        <p><strong>Имя:</strong> Доброва Анна</p>
+        <p><strong>Группа:</strong> 88ТП</p>
+        <p><strong>Email:</strong> student@example.com</p>
+        <p><a href="/">На главную</a></p>
+    """)
+
+
+def shop_info(request):
+    """Страница о магазине"""
+    return HttpResponse("""
+        <h1>О магазине подарочных сертификатов</h1>
+        <p><strong>Название:</strong> Surprise.by</p>
+        <p><strong>Тема:</strong> Интернет-магазин подарочных сертификатов сетей Минска</p>
+        <p><strong>Описание:</strong> Подарочные сертификаты в популярные сети магазинов Минска: 
+        Евроопт, Грин, Соседи, Магнит, Belarusian Brand, Свитанок, 5 элемент.</p>
+        <p><a href="/">На главную</a></p>
+    """)
+
 
 def home(request):
     products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]

@@ -3,100 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Мой магазин{% endblock %}</title>
+    <title>{% block title %}Surprise.by{% endblock %}</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <i class="fas fa-store"></i> Мой магазин
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'catalog' %}">
-                        <i class="fas fa-th-large"></i> Каталог
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'cart' %}">
-                        <i class="fas fa-shopping-cart"></i> Корзина
-                    </a>
-                </li>
-                {% if user.is_authenticated %}
+    <!-- Шапка -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                Surprise.by
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">
-                            <i class="fas fa-user"></i> {{ user.username }}
-                        </a>
+                        <a class="nav-link" href="{% url 'catalog' %}">Каталог</a>
                     </li>
                     <li class="nav-item">
-                        <!-- POST-форма для выхода (Django 5+ требует POST) -->
-                        <form method="post" action="{% url 'logout' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link"
-                                    style="padding: 0.5rem; cursor:pointer;">
-                                <i class="fas fa-sign-out-alt"></i> Выйти
-                            </button>
-                        </form>
+                        <a class="nav-link" href="{% url 'cart' %}">Корзина</a>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">
-                            <i class="fas fa-sign-in-alt"></i> Войти
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">
-                            <i class="fas fa-user-plus"></i> Регистрация
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-3">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">{{ user.username }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link" style="background: none; border: none; color: #6b6b6b; cursor: pointer; padding: 8px 18px; font-size: 0.95rem; font-family: inherit;">Выйти</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
-        {% endfor %}
-    {% endif %}
-</div>
+        </div>
+    </nav>
 
-<main class="py-4">
-    <div class="container">
-        {% block content %}{% endblock %}
+    <!-- Сообщения -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
-</main>
 
-<footer class="bg-dark text-white mt-5 py-4">
-    <div class="container text-center">
-        <p class="mb-1">&copy; 2026 Мой магазин. Все права защищены.</p>
-        <p class="mb-0">
-            <a href="#" class="text-white me-3">О нас</a>
-            <a href="#" class="text-white me-3">Доставка</a>
-            <a href="#" class="text-white">Контакты</a>
-        </p>
-    </div>
-</footer>
+    <!-- Основной контент -->
+    <main class="py-4" style="min-height: 70vh;">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{% load static %}
-<script src="{% static 'js/main.js' %}"></script>
-{% block extra_js %}{% endblock %}
+    <!-- Подвал -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>&copy; 2026 Surprise.by</p>
+                </div>
+                <div class="footer-right">
+                    <a href="{% url 'about' %}">Об авторе</a>
+                    <a href="{% url 'shop_info' %}">О магазине</a>
+                    <a href="{% url 'catalog' %}">Каталог</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% load static %}
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

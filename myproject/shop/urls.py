@@ -10,7 +10,12 @@ router.register(r'carts', views.CartViewSet, basename='cart')
 router.register(r'cart-items', views.CartItemViewSet, basename='cartitem')
 
 urlpatterns = [
+    # Новые страницы (добавьте в самое начало)
     path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('shop_info/', views.shop_info, name='shop_info'),
+    
+    # Существующие маршруты
     path('catalog/', views.product_list, name='catalog'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('cart/', views.cart_view, name='cart'),
@@ -21,6 +26,7 @@ urlpatterns = [
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     path('profile/', views.profile_view, name='profile'),
     
+    # API
     path('api/', include(router.urls)),
     path('api/me/', views.MeAPIView.as_view(), name='api_me'),
     path('api/my-orders/', views.MyOrdersAPIView.as_view(), name='api_my_orders'),
