@@ -15,7 +15,6 @@ ALLOWED_HOSTS = [
     '.up.railway.app',
     'healthcheck.railway.app',
 ]
-ALLOWED_HOSTS += ['.up.railway.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -106,13 +105,15 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
 
+# Email — таймаут 8 сек чтобы не ронять воркер Gunicorn
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_TIMEOUT = 8  # ← ключевое: ограничивает время подключения к SMTP
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='gtllop098@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='cicdckubavoiiptw')
-DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='gtllop098@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your_app_password')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

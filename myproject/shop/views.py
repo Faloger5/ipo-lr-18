@@ -226,22 +226,27 @@ def checkout(request):
             f'Спасибо за покупку!'
         )
 
+        import socket as _socket
+        _socket.setdefaulttimeout(8)
         try:
-            email = EmailMessage(
+            email_msg = EmailMessage(
                 subject=subject,
                 body=body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[customer_email],
             )
-            email.attach(
+            email_msg.attach(
                 filename=f'receipt_order_{order.id}.xlsx',
                 content=excel_buffer.read(),
                 mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             )
-            email.send(fail_silently=False)
+            email_msg.send(fail_silently=True)
             messages.success(request, f'Заказ №{order.id} оформлен! Чек отправлен на {customer_email}')
-        except Exception as e:
-            messages.warning(request, f'Заказ оформлен, но письмо не отправлено: {e}')
+        except Exception:
+            messages.success(request, f'Заказ №{order.id} успешно оформлен!')
+            messages.warning(request, 'Письмо с чеком не отправлено — проблема с почтовым сервером.')
+        finally:
+            _socket.setdefaulttimeout(None)
 
         cart_items.delete()
         return redirect('order_success', order_id=order.id)
