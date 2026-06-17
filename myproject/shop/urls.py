@@ -31,4 +31,5 @@ urlpatterns = [
     path('api/me/', views.MeAPIView.as_view(), name='api_me'),
     path('api/my-orders/', views.MyOrdersAPIView.as_view(), name='api_my_orders'),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/me/email/', views.EmailAPIView.as_view(), name='api_me_email'),
 ]

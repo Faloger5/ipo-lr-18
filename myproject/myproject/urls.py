@@ -9,7 +9,6 @@ urlpatterns = [
     path('', include('shop.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/', include('accounts.urls')),
-    path('accounts/logout/', RedirectView.as_view(url='/'), name='logout'),  # Принудительно на главную
 ]
 
 if settings.DEBUG:

@@ -211,7 +211,7 @@ async function saveProfile() {
   const email = document.getElementById('edit-email').value;
   const body = {
     full_name:         document.getElementById('edit-fullname').value,
-    phone:             document.getElementById('edit-phone').value,
+    phone:             document.querySelector('input[name="phone"]').value,
     address:           document.getElementById('edit-address').value,
     delivery_city:     document.getElementById('edit-city').value,
     postal_code:       document.getElementById('edit-postal').value,
