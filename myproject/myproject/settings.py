@@ -112,7 +112,7 @@ EMAIL_USE_SSL = True             # ← было EMAIL_USE_TLS = True
 EMAIL_USE_TLS = False            # ← добавить явно
 EMAIL_TIMEOUT = 8
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='gtllop098@yandex.ru')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='bkbinczrjtfjlzkf')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='tkhaekphhziteqra')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 REST_FRAMEWORK = {
