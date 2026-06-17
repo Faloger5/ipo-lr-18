@@ -24,19 +24,14 @@ from .serializers import (
 )
 from .permissions import IsAdminOrManager, IsOwnerOrAdmin
 
-from django.shortcuts import render
-from django.http import HttpResponse
 
 def home(request):
-    """Главная страница с ссылками"""
-    return HttpResponse("""
-        <h1>Добро пожаловать в магазин подарочных сертификатов!</h1>
-        <p>
-            <a href="/about/">О авторе</a> | 
-            <a href="/shop_info/">О магазине</a>
-        </p>
-        <p><a href="/catalog/">Перейти в каталог сертификатов</a></p>
-    """)
+    products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]
+    categories = Category.objects.all()
+    return render(request, 'shop/index.html', {
+        'products': products,
+        'categories': categories,
+    })
 
 
 def about(request):
@@ -60,15 +55,6 @@ def shop_info(request):
         Евроопт, Грин, Соседи, Магнит, Belarusian Brand, Свитанок, 5 элемент.</p>
         <p><a href="/">На главную</a></p>
     """)
-
-
-def home(request):
-    products = Product.objects.filter(stock__gt=0).order_by('-id')[:6]
-    categories = Category.objects.all()
-    return render(request, 'shop/index.html', {
-        'products': products,
-        'categories': categories,
-    })
 
 
 def product_list(request):
@@ -234,7 +220,7 @@ def checkout(request):
             f'Ваш заказ №{order.id} успешно оформлен.\n\n'
             f'Адрес доставки: {address}\n'
             f'Телефон: {phone}\n'
-            f'Сумма заказа: {order.total_amount} руб.\n\n'
+            f'Сумма заказа: {order.total_amount} BYN\n\n'
             f'Чек прикреплён к письму.\n\n'
             f'Спасибо за покупку!'
         )
@@ -277,11 +263,11 @@ def generate_receipt_excel(order):
         top=Side(style='thin'), bottom=Side(style='thin'),
     )
 
-    ws['A1'] = 'МАГАЗИН ПОДАРКОВ'
+    ws['A1'] = 'Surprise.by'
     ws['A1'].font = title_font
     ws.merge_cells('A1:E1')
 
-    ws['A2'] = 'Кассовый чек'
+    ws['A2'] = 'Подарочный сертификат'
     ws['A2'].font = header_font
     ws.merge_cells('A2:E2')
 
@@ -301,7 +287,7 @@ def generate_receipt_excel(order):
     ws['C7'] = 'Адрес:'
     ws['D7'] = order.address
 
-    headers = ['№', 'Товар', 'Цена', 'Кол-во', 'Сумма']
+    headers = ['№', 'Сертификат', 'Номинал', 'Кол-во', 'Сумма']
     for col, header in enumerate(headers, 1):
         cell = ws.cell(row=9, column=col, value=header)
         cell.font = header_font
@@ -338,7 +324,6 @@ def order_success(request, order_id):
 
 @login_required
 def profile_view(request):
-    # Передаём категории для выпадающего списка «Любимая категория»
     categories = Category.objects.all()
     return render(request, 'shop/profile.html', {'categories': categories})
 
@@ -461,39 +446,3 @@ class MyOrdersAPIView(generics.ListAPIView):
         if hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'admin':
             return Order.objects.all()
         return Order.objects.filter(user=self.request.user)
-
-
-class ChangePasswordAPIView(APIView):
-    """POST /api/change-password/  — смена пароля текущего пользователя."""
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        current_password = request.data.get('current_password', '')
-        new_password = request.data.get('new_password', '')
-
-        if not current_password or not new_password:
-            return Response(
-                {'error': 'Укажите текущий и новый пароль'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user = request.user
-        if not user.check_password(current_password):
-            return Response(
-                {'error': 'Текущий пароль введён неверно'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if len(new_password) < 8:
-            return Response(
-                {'error': 'Новый пароль должен содержать минимум 8 символов'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user.set_password(new_password)
-        user.save()
-
-        from django.contrib.auth import update_session_auth_hash
-        update_session_auth_hash(request, user)
-
-        return Response({'message': 'Пароль успешно изменён'})
