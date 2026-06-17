@@ -9,7 +9,12 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-8mq@%m#%b&%75jefm+*ry
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.up.railway.app',
+    'healthcheck.railway.app',
+]
 ALLOWED_HOSTS += ['.up.railway.app']
 
 INSTALLED_APPS = [
