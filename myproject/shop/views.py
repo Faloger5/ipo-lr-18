@@ -447,7 +447,7 @@ class MyOrdersAPIView(generics.ListAPIView):
         if hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'admin':
             return Order.objects.all()
         return Order.objects.filter(user=self.request.user)
-    from django.shortcuts import render, redirect
+
 
 class EmailAPIView(APIView):
     permission_classes = [IsAuthenticated]
