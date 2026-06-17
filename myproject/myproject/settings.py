@@ -105,14 +105,14 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
 
-# Email — таймаут 8 сек чтобы не ронять воркер Gunicorn
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_TIMEOUT = 8  # ← ключевое: ограничивает время подключения к SMTP
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='gtllop098@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your_app_password')
+EMAIL_HOST = 'smtp.yandex.ru'   # ← было smtp.gmail.com
+EMAIL_PORT = 465                 # ← было 587
+EMAIL_USE_SSL = True             # ← было EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False            # ← добавить явно
+EMAIL_TIMEOUT = 8
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='gtllop098@yandex.ru')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='bkbinczrjtfjlzkf')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 REST_FRAMEWORK = {
