@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, Alignment, Border, Side
@@ -23,7 +24,6 @@ from .serializers import (
     UserProfileSerializer, OrderSerializer
 )
 from .permissions import IsAdminOrManager, IsOwnerOrAdmin
-from django.http import HttpResponse
 
 
 def home(request):
@@ -36,7 +36,6 @@ def home(request):
 
 
 def about(request):
-    """Страница об авторе"""
     return HttpResponse("""
         <h1>Об авторе</h1>
         <p><strong>Имя:</strong> Доброва Анна</p>
@@ -47,7 +46,6 @@ def about(request):
 
 
 def shop_info(request):
-    """Страница о магазине"""
     return HttpResponse("""
         <h1>О магазине подарочных сертификатов</h1>
         <p><strong>Название:</strong> Surprise.by</p>
@@ -59,7 +57,7 @@ def shop_info(request):
 
 
 def product_list(request):
-    products = Product.objects.all().order_by('-id')
+    products = Product.objects.all().order_by('id')
 
     search_query = request.GET.get('search', '')
     category_id = request.GET.get('category', '')
@@ -213,43 +211,38 @@ def checkout(request):
             cart_item.product.stock -= cart_item.quantity
             cart_item.product.save()
 
+        # Генерируем Excel-чек
         excel_buffer = generate_receipt_excel(order)
 
-        subject = f'Ваш заказ №{order.id} оформлен'
-        body = (
-            f'Здравствуйте, {request.user.username}!\n\n'
-            f'Ваш заказ №{order.id} успешно оформлен.\n\n'
-            f'Адрес доставки: {address}\n'
-            f'Телефон: {phone}\n'
-            f'Сумма заказа: {order.total_amount} BYN\n\n'
-            f'Чек прикреплён к письму.\n\n'
-            f'Спасибо за покупку!'
-        )
-
-        import socket as _socket
-        import logging
-        logger = logging.getLogger(__name__)
-        _socket.setdefaulttimeout(10)
+        # Пытаемся отправить письмо, но не показываем ошибку пользователю
         try:
-            email_msg = EmailMessage(
+            subject = f'Ваш заказ №{order.id} оформлен'
+            body = (
+                f'Здравствуйте, {request.user.username}!\n\n'
+                f'Ваш заказ №{order.id} успешно оформлен.\n\n'
+                f'Адрес доставки: {address}\n'
+                f'Телефон: {phone}\n'
+                f'Сумма заказа: {order.total_amount} BYN\n\n'
+                f'Чек прикреплён к письму.\n\n'
+                f'Спасибо за покупку!'
+            )
+
+            email = EmailMessage(
                 subject=subject,
                 body=body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[customer_email],
             )
-            email_msg.attach(
+            email.attach(
                 filename=f'receipt_order_{order.id}.xlsx',
                 content=excel_buffer.read(),
                 mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             )
-            email_msg.send(fail_silently=False)
+            email.send(fail_silently=False)
             messages.success(request, f'Заказ №{order.id} оформлен! Чек отправлен на {customer_email}')
-        except Exception as e:
-            logger.error(f'EMAIL ERROR order={order.id}: {type(e).__name__}: {e}')
-            messages.success(request, f'Заказ №{order.id} успешно оформлен!')
-            messages.warning(request, f'Письмо не отправлено: {type(e).__name__}: {e}')
-        finally:
-            _socket.setdefaulttimeout(None)
+        except Exception:
+            # SMTP заблокирован — показываем понятное сообщение
+            messages.warning(request, f'Заказ №{order.id} оформлен! В связи с блокировкой SMTP чек не отправлен.')
 
         cart_items.delete()
         return redirect('order_success', order_id=order.id)
@@ -352,7 +345,7 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('id')
     serializer_class = ProductSerializer
 
     def get_permissions(self):
@@ -363,7 +356,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        qs = Product.objects.all()
+        qs = Product.objects.all().order_by('id')
         params = self.request.query_params
         if params.get('category'):
             qs = qs.filter(category_id=params['category'])
@@ -453,8 +446,8 @@ class MyOrdersAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         if hasattr(self.request.user, 'profile') and self.request.user.profile.role == 'admin':
-            return Order.objects.all()
-        return Order.objects.filter(user=self.request.user)
+            return Order.objects.all().order_by('-created_at')
+        return Order.objects.filter(user=self.request.user).order_by('-created_at')
 
 
 class EmailAPIView(APIView):
