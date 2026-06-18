@@ -59,7 +59,7 @@ def shop_info(request):
 
 
 def product_list(request):
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('-id')
 
     search_query = request.GET.get('search', '')
     category_id = request.GET.get('category', '')
@@ -227,7 +227,9 @@ def checkout(request):
         )
 
         import socket as _socket
-        _socket.setdefaulttimeout(8)
+        import logging
+        logger = logging.getLogger(__name__)
+        _socket.setdefaulttimeout(10)
         try:
             email_msg = EmailMessage(
                 subject=subject,
@@ -240,11 +242,12 @@ def checkout(request):
                 content=excel_buffer.read(),
                 mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             )
-            email_msg.send(fail_silently=True)
+            email_msg.send(fail_silently=False)
             messages.success(request, f'Заказ №{order.id} оформлен! Чек отправлен на {customer_email}')
-        except Exception:
+        except Exception as e:
+            logger.error(f'EMAIL ERROR order={order.id}: {type(e).__name__}: {e}')
             messages.success(request, f'Заказ №{order.id} успешно оформлен!')
-            messages.warning(request, 'Письмо с чеком не отправлено — проблема с почтовым сервером.')
+            messages.warning(request, f'Письмо не отправлено: {type(e).__name__}: {e}')
         finally:
             _socket.setdefaulttimeout(None)
 
